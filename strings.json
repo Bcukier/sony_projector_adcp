@@ -1,0 +1,35 @@
+{
+    "config": {
+      "step": {
+        "user": {
+          "title": "Sony Projector ADCP",
+          "description": "Configure your Sony projector connection",
+          "data": {
+            "host": "IP Address",
+            "port": "Port",
+            "name": "Name",
+            "use_auth": "Use Authentication",
+            "password": "Password"
+          }
+        }
+      },
+      "error": {
+        "cannot_connect": "Failed to connect to the projector. Please check the IP address and port.",
+        "unknown": "Unexpected error occurred"
+      },
+      "abort": {
+        "already_configured": "This projector is already configured"
+      }
+    },
+    "options": {
+      "step": {
+        "init": {
+          "title": "Sony Projector ADCP Options",
+          "data": {
+            "use_auth": "Use Authentication",
+            "password": "Password"
+          }
+        }
+      }
+    }
+  }
