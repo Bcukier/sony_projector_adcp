@@ -4,7 +4,7 @@
     "codeowners": [],
     "config_flow": true,
     "dependencies": [],
-    "documentation": "https://github.com/yourusername/sony_projector_adcp",
+    "documentation": "https://github.com/Bcukier/sony_projector_adcp",
     "iot_class": "local_polling",
     "requirements": [],
     "version": "1.0.0"
