@@ -1,0 +1,9 @@
+{
+  "name": "Sony Projector ADCP",
+  "content_in_root": false,
+  "filename": "sony_projector_adcp",
+  "render_readme": true,
+  "domains": ["media_player"],
+  "iot_class": "Local Polling",
+  "homeassistant": "2023.1.0"
+}
