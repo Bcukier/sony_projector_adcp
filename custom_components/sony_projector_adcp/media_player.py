@@ -80,7 +80,7 @@ async def async_setup_entry(
     
     platform.async_register_entity_service(
         SERVICE_SET_LIGHT_OUTPUT,
-        {vol.Required(ATTR_VALUE): vol.All(vol.Coerce(int), vol.Range(min=0, max=100))},
+        {vol.Required(ATTR_VALUE): vol.All(vol.Coerce(int), vol.Range(min=0, max=1000))},
         "async_set_light_output",
     )
     
