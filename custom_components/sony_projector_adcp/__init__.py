@@ -4,6 +4,7 @@ import logging
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.const import CONF_HOST, CONF_PASSWORD, CONF_PORT, Platform
 from homeassistant.core import HomeAssistant
+from homeassistant.exceptions import ConfigEntryNotReady
 
 from .const import CONF_USE_AUTH, DEFAULT_PASSWORD, DEFAULT_USE_AUTH, DOMAIN
 from .protocol import SonyProjectorADCP
@@ -22,12 +23,20 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     projector = SonyProjectorADCP(host, port, password, use_auth)
 
-    # Test connection
-    if not await projector.connect():
-        _LOGGER.error("Failed to connect to projector at %s:%s", host, port)
-        return False
-
-    await projector.disconnect()
+    # Test connection — raise ConfigEntryNotReady so HA retries with backoff
+    # (e.g. after a power outage the projector may not be network-ready yet)
+    try:
+        if not await projector.connect():
+            raise ConfigEntryNotReady(
+                f"Unable to connect to projector at {host}:{port}"
+            )
+        await projector.disconnect()
+    except ConfigEntryNotReady:
+        raise
+    except Exception as err:
+        raise ConfigEntryNotReady(
+            f"Error connecting to projector at {host}:{port}: {err}"
+        ) from err
 
     hass.data.setdefault(DOMAIN, {})
     hass.data[DOMAIN][entry.entry_id] = projector
