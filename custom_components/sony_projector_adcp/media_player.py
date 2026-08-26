@@ -180,6 +180,7 @@ class SonyProjectorMediaPlayer(MediaPlayerEntity):
         self._current_source = None
         self._is_blank = False
         self._picture_mode = None
+        self._picture_position = None
         self._brightness = None
         self._contrast = None
         self._sharpness = None
@@ -223,7 +224,15 @@ class SonyProjectorMediaPlayer(MediaPlayerEntity):
                         self._picture_mode = picture_mode
                 except Exception as e:
                     _LOGGER.debug("Error getting picture mode: %s", e)
-                
+
+                # Get picture/lens memory position - keep last value if query fails
+                try:
+                    picture_position = await self._projector.get_picture_position()
+                    if picture_position:
+                        self._picture_position = picture_position
+                except Exception as e:
+                    _LOGGER.debug("Error getting picture position: %s", e)
+
                 # Get brightness - keep last value if query fails
                 try:
                     brightness = await self._projector.get_numeric_value("brightness")
@@ -270,6 +279,7 @@ class SonyProjectorMediaPlayer(MediaPlayerEntity):
                 self._sharpness = None
                 self._light_output = None
                 self._picture_mode = None
+                self._picture_position = None
                 self._reality_creation = None
                     
         except Exception as e:
@@ -427,7 +437,10 @@ class SonyProjectorMediaPlayer(MediaPlayerEntity):
         
         if self._picture_mode:
             attrs["picture_mode"] = PICTURE_MODES.get(self._picture_mode, self._picture_mode)
-        
+
+        if self._picture_position:
+            attrs["picture_position"] = self._picture_position
+
         if self._brightness is not None:
             attrs["brightness"] = self._brightness
         
