@@ -38,6 +38,17 @@ PICTURE_MODES = {
     "user3": "User 3",
 }
 
+# Picture positions (lens memories) for the ADCP pic_pos_sel command
+PICTURE_POSITIONS = {
+    "1.85_1": "1.85:1",
+    "2.35_1": "2.35:1",
+    "custom1": "Custom 1",
+    "custom2": "Custom 2",
+    "custom3": "Custom 3",
+    "custom4": "Custom 4",
+    "custom5": "Custom 5",
+}
+
 # Power states
 POWER_STATE_MAP = {
     "standby": "off",

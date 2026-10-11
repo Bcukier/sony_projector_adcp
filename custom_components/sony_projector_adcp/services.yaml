@@ -208,6 +208,36 @@ decrease_light_output:
       domain: media_player
       integration: sony_projector_adcp
 
+set_picture_position:
+  name: Set Picture Position
+  description: Recall a picture position (lens memory), e.g. to switch between 16:9 and 2.35:1 screen framing
+  target:
+    entity:
+      domain: media_player
+      integration: sony_projector_adcp
+  fields:
+    position:
+      name: Picture Position
+      description: The stored picture position (lens memory) to recall
+      required: true
+      selector:
+        select:
+          options:
+            - label: "1.85:1"
+              value: "1.85_1"
+            - label: "2.35:1"
+              value: "2.35_1"
+            - label: Custom 1
+              value: custom1
+            - label: Custom 2
+              value: custom2
+            - label: Custom 3
+              value: custom3
+            - label: Custom 4
+              value: custom4
+            - label: Custom 5
+              value: custom5
+
 set_reality_creation:
   name: Set Reality Creation
   description: Set Reality Creation on or off

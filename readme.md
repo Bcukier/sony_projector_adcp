@@ -86,6 +86,7 @@ The integration creates a single media player entity: `media_player.sony_project
 - `source` - Current input source
 - `video_muted` - Video mute status
 - `picture_mode` - Current picture mode
+- `picture_position` - Current picture position / lens memory (e.g. `2.35_1`, `custom2`), on projectors that support it
 - `brightness` - Current brightness level (0-100)
 - `contrast` - Current contrast level (0-100)
 - `sharpness` - Current sharpness level (0-100)
@@ -113,6 +114,17 @@ target:
 data:
   mode: cinema_film1  # Options: cinema_film1, cinema_film2, reference, tv, photo, game, brt_cinema, brt_tv, user1, user2, user3
 ```
+
+#### Picture Position (Lens Memory)
+Recall a stored picture position, e.g. to switch the lens between 16:9 and 2.35:1 framing on a scope screen:
+```yaml
+service: sony_projector_adcp.set_picture_position
+target:
+  entity_id: media_player.sony_projector
+data:
+  position: "2.35_1"  # Options: 1.85_1, 2.35_1, custom1, custom2, custom3, custom4, custom5
+```
+The current position is shown in the `picture_position` attribute and follows changes made with the remote or another control system.
 
 #### Picture Adjustments
 ```yaml

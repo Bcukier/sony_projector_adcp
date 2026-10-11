@@ -190,6 +190,18 @@ class SonyProjectorADCP:
             return response.strip('"')
         return None
 
+    async def get_picture_position(self) -> Optional[str]:
+        """Get current picture/lens memory position."""
+        response = await self.send_command("pic_pos_sel ?")
+        if response and response.startswith('"') and response.endswith('"'):
+            return response.strip('"')
+        return None
+
+    async def set_picture_position(self, position: str) -> bool:
+        """Recall a picture position (lens memory)."""
+        response = await self.send_command(f'pic_pos_sel "{position}"')
+        return response == "ok"
+
     async def set_picture_mode(self, mode: str) -> bool:
         """Set picture mode."""
         command = f'picture_mode "{mode}"'

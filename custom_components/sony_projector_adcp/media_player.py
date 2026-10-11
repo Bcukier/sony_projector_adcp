@@ -14,7 +14,14 @@ from homeassistant.helpers.entity_platform import AddEntitiesCallback, async_get
 import voluptuous as vol
 from homeassistant.helpers import config_validation as cv
 
-from .const import DEFAULT_NAME, DOMAIN, INPUT_SOURCES, PICTURE_MODES, POWER_STATE_MAP
+from .const import (
+    DEFAULT_NAME,
+    DOMAIN,
+    INPUT_SOURCES,
+    PICTURE_MODES,
+    PICTURE_POSITIONS,
+    POWER_STATE_MAP,
+)
 from .protocol import SonyProjectorADCP
 
 _LOGGER = logging.getLogger(__name__)
@@ -22,6 +29,7 @@ _LOGGER = logging.getLogger(__name__)
 # Service schemas
 SERVICE_SEND_KEY = "send_key"
 SERVICE_SET_PICTURE_MODE = "set_picture_mode"
+SERVICE_SET_PICTURE_POSITION = "set_picture_position"
 SERVICE_SET_BRIGHTNESS = "set_brightness"
 SERVICE_SET_CONTRAST = "set_contrast"
 SERVICE_SET_SHARPNESS = "set_sharpness"
@@ -30,6 +38,7 @@ SERVICE_SEND_RAW_COMMAND = "send_raw_command"
 
 ATTR_KEY = "key"
 ATTR_MODE = "mode"
+ATTR_POSITION = "position"
 ATTR_VALUE = "value"
 ATTR_COMMAND = "command"
 
@@ -60,6 +69,12 @@ async def async_setup_entry(
         SERVICE_SET_PICTURE_MODE,
         {vol.Required(ATTR_MODE): vol.In(list(PICTURE_MODES.keys()))},
         "async_set_picture_mode_service",
+    )
+
+    platform.async_register_entity_service(
+        SERVICE_SET_PICTURE_POSITION,
+        {vol.Required(ATTR_POSITION): vol.In(list(PICTURE_POSITIONS.keys()))},
+        "async_set_picture_position_service",
     )
     
     platform.async_register_entity_service(
@@ -180,6 +195,7 @@ class SonyProjectorMediaPlayer(MediaPlayerEntity):
         self._current_source = None
         self._is_blank = False
         self._picture_mode = None
+        self._picture_position = None
         self._brightness = None
         self._contrast = None
         self._sharpness = None
@@ -223,7 +239,15 @@ class SonyProjectorMediaPlayer(MediaPlayerEntity):
                         self._picture_mode = picture_mode
                 except Exception as e:
                     _LOGGER.debug("Error getting picture mode: %s", e)
-                
+
+                # Get picture/lens memory position - keep last value if query fails
+                try:
+                    picture_position = await self._projector.get_picture_position()
+                    if picture_position:
+                        self._picture_position = picture_position
+                except Exception as e:
+                    _LOGGER.debug("Error getting picture position: %s", e)
+
                 # Get brightness - keep last value if query fails
                 try:
                     brightness = await self._projector.get_numeric_value("brightness")
@@ -270,6 +294,7 @@ class SonyProjectorMediaPlayer(MediaPlayerEntity):
                 self._sharpness = None
                 self._light_output = None
                 self._picture_mode = None
+                self._picture_position = None
                 self._reality_creation = None
                     
         except Exception as e:
@@ -307,6 +332,14 @@ class SonyProjectorMediaPlayer(MediaPlayerEntity):
         """Set picture mode via service call."""
         await self._projector.set_picture_mode(mode)
         self._picture_mode = mode
+
+    async def async_set_picture_position_service(self, position: str) -> None:
+        """Recall a picture position (lens memory) via service call."""
+        if await self._projector.set_picture_position(position):
+            self._picture_position = position
+            self.async_write_ha_state()
+        else:
+            _LOGGER.error("Projector did not accept picture position %s", position)
 
     async def async_set_brightness(self, value: int) -> None:
         """Set brightness via service call."""
@@ -427,7 +460,10 @@ class SonyProjectorMediaPlayer(MediaPlayerEntity):
         
         if self._picture_mode:
             attrs["picture_mode"] = PICTURE_MODES.get(self._picture_mode, self._picture_mode)
-        
+
+        if self._picture_position:
+            attrs["picture_position"] = self._picture_position
+
         if self._brightness is not None:
             attrs["brightness"] = self._brightness
         
